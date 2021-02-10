@@ -1,0 +1,83 @@
+// Backgorund Colors
+$red: red;
+$purple: purple;
+$blue: blue;
+$yellow: gold;
+$white: white;
+
+figure {
+  margin-left: 0;
+  margin-right: 0;
+}
+
+pre {
+  padding: 15px;
+}
+
+code {
+  background-color: #272822;
+}
+
+.bg-red {
+  background-color: $red;
+}
+
+.bg-purple {
+  background-color: $purple;
+}
+
+.bg-blue {
+  background-color: $blue;
+}
+
+.bg-yellow {
+  background-color: $yellow;
+}
+
+.txt-color_red {
+  color: $red;
+}
+
+.txt-color_purple {
+  color: $purple;
+}
+
+.txt-color_blue {
+  color: $blue;
+}
+
+.txt-color_yellow {
+  color: $yellow;
+}
+
+.txt-color_white {
+  color: $white;
+}
+
+.m-r-20 {
+  margin-right: 20px;
+}
+
+.p-5 {
+  padding: 5px;
+}
+
+.p-b-10 {
+  padding-bottom: 10px;
+}
+
+.main-title {
+  margin-bottom: 0;
+}
+
+.bold {
+  font-weight: bold;
+}
+
+.text-align-right {
+  text-align: right;
+}
+
+.text-small {
+  font-size: .85rem;
+}

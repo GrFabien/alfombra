@@ -1,6 +1,6 @@
 ---
 layout: post
-category: angular
+category: [rxjs, angular]
 ---
 
 This post is strange

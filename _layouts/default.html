@@ -1,11 +1,16 @@
 <!DOCTYPE html>
-<html lang="{{ page.lang | default: "en" }}">
+<html lang="{{ page.lang | default: "fr" }}">
   {%- include head.html -%}
   <body a="{{ site.theme_config.appearance | default: "auto" }}">
     <main class="page-content" aria-label="Content">
+
       <div class="w">
         {{ content }}
       </div>
+
+      <footer>
+        <p class="m-r-20 p-b-10 text-align-right text-small">Basé sur le design de <em>{{ site.designedBy }}</em></p>
+      </footer>
     </main>
 
     {% if site.goat_counter and jekyll.environment == "production" %}

@@ -1,6 +1,6 @@
 ---
 layout: post
-category: example
+category: rxjs
 ---
 
 Lorem ipsum[^1] dolor sit amet, consectetur adipiscing elit. Pellentesque vel lacinia neque. Praesent nulla quam, ullamcorper in sollicitudin ac, molestie sed justo. Cras aliquam, sapien id consectetur accumsan, augue magna faucibus ex, ut ultricies turpis tortor vel ante. In at rutrum tellus.
@@ -52,10 +52,11 @@ Mauris viverra dictum ultricies. Vestibulum quis ipsum euismod, facilisis metus 
 
 Now some code:
 
-```
-const ultimateTruth = 'this theme is the best!';
-console.log(ultimateTruth);
-```
+{% highlight typescript %}
+of('Fabien').pipe(
+    map((name: string) => name + ' !')
+).subscribe(console.log); // Output: Fabien !
+{% endhighlight %}
 
 And here is some `inline code`!
 
