@@ -1,0 +1,14 @@
+---
+layout: default
+---
+<header>
+  <h1 class="main-title">{{ site.title }}</h1>
+  <em>{{ site.author }}</em>
+  {% if site.theme_config.show_description %}
+    <p>{{ site.description }}</p>
+  {% endif %}
+</header>
+
+{% include list_items.html collection=site.data.home.entries %}
+
+{{ content }}
