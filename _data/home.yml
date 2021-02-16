@@ -5,35 +5,7 @@ entries:
   - title: Angular
     class: bold txt-color_red
     post_list:
-      category: angular
-      limit: 5
-      show_more: true
-      show_more_text: See archive...
-      show_more_url: angular.html
-
-  - title: RXJS
-    class: bold txt-color_purple
-    post_list:
-      category: rxjs
-      limit: 5
-      show_more: true
-      show_more_text: See archive...
-      show_more_url: archive.html
-
-  - title: TypeScript
-    class: bold txt-color_blue
-    post_list:
-      category: typescript
-      limit: 5
-      show_more: true
-      show_more_text: See archive...
-      show_more_url: archive.html
-
-  - title: JavaScript
-    class: bold txt-color_yellow
-    post_list:
-      category: javascript
-      limit: 5
+      limit: 10
       show_more: true
       show_more_text: See archive...
       show_more_url: archive.html

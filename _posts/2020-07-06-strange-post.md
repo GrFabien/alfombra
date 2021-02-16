@@ -1,6 +1,0 @@
----
-layout: post
-category: angular
----
-
-This post is strange

@@ -1,9 +1,71 @@
-// Backgorund Colors
+// Colors
 $red: red;
 $purple: purple;
 $blue: blue;
 $yellow: gold;
 $white: white;
+$cyan: cyan;
+$coral: coral;
+$pink: pink;
+$green: lightgreen;
+$black: black;
+
+// Size
+$small: .85rem;
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  word-wrap: break-word;
+}
+
+.w {
+  max-width: 100%;
+  padding: 0 15px;
+}
+
+blockquote {
+  margin: 0;
+}
+
+@media (min-width: 900px) {
+  html {
+    font-size: 17px;
+  }
+
+  .w {
+    width: fit-content;
+    max-width: 90%;
+    margin: 0 auto;
+    padding: 4rem 2rem;
+  }
+
+  code {
+    font-size: 1.2rem;
+  }
+
+  blockquote {
+    margin: 1.3rem;
+  }
+}
+
+@media (min-width: 1200px) {
+  html {
+    font-size: 12px;
+  }
+
+  .w {
+    width: fit-content;
+    max-width: 640px;
+    margin: 0 auto;
+    padding: 4rem 2rem;
+  }
+
+
+}
+
 
 figure {
   margin-left: 0;
@@ -12,6 +74,8 @@ figure {
 
 pre {
   padding: 15px;
+  overflow: auto;
+  font-size: $small;
 }
 
 code {
@@ -54,12 +118,28 @@ code {
   color: $white;
 }
 
+.txt-color_black {
+  color: $black;
+}
+
 .m-r-20 {
   margin-right: 20px;
 }
 
+.m-r-5 {
+  margin-right: 5px;
+}
+
 .p-5 {
   padding: 5px;
+}
+
+.p-l-5 {
+  padding-left: 5px;
+}
+
+.p-r-5 {
+  padding-right: 5px;
 }
 
 .p-b-10 {
@@ -79,5 +159,42 @@ code {
 }
 
 .text-small {
-  font-size: .85rem;
+  font-size: $small;
+}
+
+@media (min-width: 600px) {
+  embed {
+    position: absolute;
+    left: 0;
+    right: 0;
+  }
+
+  .embed-separator {
+    margin-top: 570px;
+  }
+}
+
+.info {
+  text-decoration-style: dashed;
+  text-decoration-line: underline;
+  cursor: help;
+}
+
+.point-of-interest {
+  padding: 10px;
+  margin: 30px 0;
+  background-color: $cyan;
+}
+
+.point-of-interest_title {
+  display: inline-block;
+  margin-bottom: 10px;
+  font-weight: bold;
+}
+
+h2 {
+  &#lidée, &#code, &#démo, &#sources {
+    margin: 0;
+    text-align: center;
+  }
 }
