@@ -37,10 +37,9 @@ On aura donc deux propriétés :
 ---
 
 On va commencer par les <span class="info" title="Qui ne se charge que de l'affichage et d'émettre les évennements au composant parent">dumb components</span>. <br>
+<br>
 
 -***SearchListComponent***-
-
-On commence donc par ```SearchListComponent```. Sans style, juste une liste à puce simple qui boucle sur le ```@Input()``` ```list``` et c'est tout.
 
 {% highlight typescript angular %}
 import { Component, Input, ChangeDetectionStrategy } from "@angular/core";
@@ -63,9 +62,11 @@ export class SearchListComponent {
 }
 {% endhighlight %}
 
--***SearchInputComponent***-
+On commence donc par ```SearchListComponent```. Sans style, juste une liste à puce simple qui boucle sur le ```@Input()``` ```list``` et c'est tout.
+<br>
+<br>
 
-Puis ```SearchInputComponent```. Sans style non plus. A chaque ```keyup``` on récupère la valeur du champ ```input``` via sa référence ```#inputSearch``` puis on émet la valeur par le ```@Output()``` ```onSearch```.
+-***SearchInputComponent***-
 
 {% highlight typescript %}
 import {
@@ -92,23 +93,11 @@ export class SearchInputComponent {
 }
 {% endhighlight %}
 
+Puis ```SearchInputComponent```. Sans style non plus. A chaque ```keyup``` on récupère la valeur du champ ```input``` via sa référence ```#inputSearch``` puis on émet la valeur par le ```@Output()``` ```onSearch```.
+<br>
+<br>
+
 -***SearchComponent***-
-
-Notre <span class="info" title="Qui se charge de la logique, de l'injection des services et de l'état du composant mais pas de l'affichage">Smart component</span>.
-
-Regardons le hook ```ngOnInit```, nous avons une constante ```list$``` qui récupère les valeurs retournées par la base de données (pour l'exemple, c'est une méthode du service ```SearchService``` qui retourne les données écrites en dur). <br>
-
-Suit la constante ```search$``` qui récupère le flux du ```BehaviorSubject``` et effectue deux opérations :
-- ```distinctUntilChanged``` : Compare la valeur précédente et la valeur courrante. Il fonctionne comme une condition, si la nouvelle valeur est différente de la valeur précédente alors il passe au prochain opérateur.
-- ```debounceTime``` : Dans notre cas 300ms, on attend donc 300ms avant de passer au prochain opérateur. Si dans les 300ms la valeur change de nouveau, le compteur se remet à 0.
-
-Ces opérateurs sont assez communs quand il s'agit d'écouter les évennements sur un champ texte. <br>
-
-Avant de passer au ```combineLatest```, regardons la fonction ```search(value: string)```, elle est appellée chaque fois qu'un nouvel évennement est détecté, soit à chaque fois que le composant enfant ```SearchInputComponent``` notifie le parent d'un changement dans le champ texte. ```search(value: string)``` pousse dans le ```BehaviorSubject``` la nouvelle valeur, cette nouvelle valeur passe par les opérateurs que nous venons de décrire. <br>
-
-```combineLatest``` est très utile dans notre cas car il attend que chaque observable émette au moins une fois une valeur puis prend la dernière valeur de chaque observable. Notre ```list$``` ne change pas mais à déjà émis une valeur, la liste initiale. Quant à ```search$```, il change de valeur à chaque changement dans le champ texte. <br>
-
-Quand un changement est détecté, les valeurs des deux observables écoutés passent par l'opérateur ```map``` qui appelle la fonction ```filterByName(list: IList[], searchTerm: string)```, fonction qui si a ```searchTerm``` à vide retourne toute la liste, sinon effectue le tri et retourne les noms correspondants à la recherche.
 
 {% highlight typescript %}
 import { Component } from "@angular/core";
@@ -162,6 +151,22 @@ export class SearchComponent {
 }
 {% endhighlight %}
 
+Notre <span class="info" title="Qui se charge de la logique, de l'injection des services et de l'état du composant mais pas de l'affichage">Smart component</span>.
+
+Regardons le hook ```ngOnInit```, nous avons une constante ```list$``` qui récupère les valeurs retournées par la base de données (pour l'exemple, c'est une méthode du service ```SearchService``` qui retourne les données écrites en dur). <br>
+
+Suit la constante ```search$``` qui récupère le flux du ```BehaviorSubject``` et effectue deux opérations :
+- ```distinctUntilChanged``` : Compare la valeur précédente et la valeur courrante. Il fonctionne comme une condition, si la nouvelle valeur est différente de la valeur précédente alors il passe au prochain opérateur.
+- ```debounceTime``` : Dans notre cas 300ms, on attend donc 300ms avant de passer au prochain opérateur. Si dans les 300ms la valeur change de nouveau, le compteur se remet à 0.
+
+Ces opérateurs sont assez communs quand il s'agit d'écouter les évennements sur un champ texte. <br>
+
+Avant de passer au ```combineLatest```, regardons la fonction ```search(value: string)```, elle est appellée chaque fois qu'un nouvel évennement est détecté, soit à chaque fois que le composant enfant ```SearchInputComponent``` notifie le parent d'un changement dans le champ texte. ```search(value: string)``` pousse dans le ```BehaviorSubject``` la nouvelle valeur, cette nouvelle valeur passe par les opérateurs que nous venons de décrire. <br>
+
+```combineLatest``` est très utile dans notre cas car il attend que chaque observable émette au moins une fois une valeur puis prend la dernière valeur de chaque observable. Notre ```list$``` ne change pas mais à déjà émis une valeur, la liste initiale. Quant à ```search$```, il change de valeur à chaque changement dans le champ texte. <br>
+
+Quand un changement est détecté, les valeurs des deux observables écoutés passent par l'opérateur ```map``` qui appelle la fonction ```filterByName(list: IList[], searchTerm: string)```, fonction qui si a ```searchTerm``` à vide retourne toute la liste, sinon effectue le tri et retourne les noms correspondants à la recherche.
+
 **Points intéressants**
 
 > 
@@ -177,7 +182,7 @@ export class SearchComponent {
 ## [Démo](#demo)
 ---
 
-<embed type="text/html" src="https://stackblitz.com/edit/angular-ivy-8hrpow?ctl=1&embed=1&file=src/app/search/search.component.ts&theme=dark" width="100%" height="600">
+<embed type="text/html" src="https://stackblitz.com/edit/filtrer-une-liste-avec-rxjs?ctl=1&embed=1&file=src/app/app.component.ts&theme=dark" width="100%" height="600">
 
 <div class="embed-separator"></div>
 
