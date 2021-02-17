@@ -14,13 +14,13 @@ keywords: [rxjs, angular]
 **La vue**
 
   - Un composant de list : ```ListComponent```
-  - Un composant de filtre : ```SearchFilterComponent```
+  - Un composant pour le champ de recherche : ```SearchInputComponent```
   - Un componsant de recherche : ```SearchComponent``` qui affichera le champ et la liste
   - Le module de recherche : ```SearchModule``` qui comprendra les composants cités au dessus
 
 **Le flux**
 
-  - On récupére au ```keyup``` la valeur entrée dans le champ du composant ```SearchFilterComponent```
+  - On récupére au ```keyup``` la valeur entrée dans le champ du composant ```SearchInputComponent```
   - On filtre la liste dans ```SearchComponent```
   - On passe les données filtrées de la liste à l'enfant ```ListComponent```
 
@@ -37,10 +37,9 @@ On aura donc deux propriétés :
 ---
 
 On va commencer par les <span class="info" title="Qui ne se charge que de l'affichage et d'émettre les évennements au composant parent">dumb components</span>. <br>
+<br>
 
 -***SearchListComponent***-
-
-On commence donc par ```SearchListComponent```. Sans style, juste une liste à puce simple qui boucle sur le ```@Input()``` ```list``` et c'est tout.
 
 {% highlight typescript angular %}
 import { Component, Input, ChangeDetectionStrategy } from "@angular/core";
@@ -55,7 +54,7 @@ import { IList } from "../search.interface";
       </li>
     </ul>
   `,
-  changeDetection: ChangeDetectionStrategy.onPush
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class SearchListComponent {
   @Input()
@@ -63,9 +62,11 @@ export class SearchListComponent {
 }
 {% endhighlight %}
 
--***SearchFilterComponent***-
+On commence donc par ```SearchListComponent```. Sans style, juste une liste à puce simple qui boucle sur le ```@Input()``` ```list``` et c'est tout.
+<br>
+<br>
 
-Puis ```SearchFilterComponent```. Sans style non plus. A chaque ```keyup``` on récupère la valeur du champ ```input``` via sa référence ```#inputSearch``` puis on émet la valeur par le ```@Output()``` ```onSearch```.
+-***SearchInputComponent***-
 
 {% highlight typescript %}
 import {
@@ -76,13 +77,13 @@ import {
 } from "@angular/core";
 
 @Component({
-  selector: "search-filter",
+  selector: "search-input",
   template: `
     <input type="text" #inputSearch (keyup)="search(inputSearch.value)" />
   `,
-  changeDetection: ChangeDetectionStrategy.onPush
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class SearchFilterComponent {
+export class SearchInputComponent {
   @Output()
   public onSearch: EventEmitter<string> = new EventEmitter<string>();
 
@@ -92,27 +93,15 @@ export class SearchFilterComponent {
 }
 {% endhighlight %}
 
+Puis ```SearchInputComponent```. Sans style non plus. A chaque ```keyup``` on récupère la valeur du champ ```input``` via sa référence ```#inputSearch``` puis on émet la valeur par le ```@Output()``` ```onSearch```.
+<br>
+<br>
+
 -***SearchComponent***-
-
-Notre <span class="info" title="Qui se charge de la logique, des side effects (appels aux back par exemple)">Smart component</span>.
-
-Regardons le hook ```ngOnInit```, nous avons une constante ```list$``` qui récupère les valeurs retournées par la base de données (pour l'exemple, c'est une méthode du service ```SearchService``` qui retourne les données écrites en dur). <br>
-
-Suit la constante ```search$``` qui récupère le ```BehaviorSubject``` et effectue deux opérations :
-- ```distinctUntilChanged``` : Compare la valeur précédente et la valeur courrante. Il fonctionne comme une condition, si la nouvelle valeur est différente de la valeur précédente alors il passe au prochain opérateur.
-- ```debounceTime``` : Dans notre cas 300ms, on attend donc 300ms avant de passer au prochain opérateur. Si dans les 300ms la valeur change de nouveau, ça relance de compteur.
-
-Ces opérateurs sont assez communs quand il s'agit d'écouter les évennements sur un champ texte. <br>
-
-Avant de passer au ```combineLatest```, regardons la fonction ```search(value: string)```, elle est appellée chaque fois qu'un nouvel évennement est détecté, soit à chaque fois que le composant enfant ```SearchFilterComponent``` notifie le parent d'un changement dans le champ texte. ```search(value: string)``` pousse dans le ```BehaviorSubject``` la nouvelle valeur, cette nouvelle valeur passe par les opérateurs que nous venons de décrire. <br>
-
-```combineLatest``` est très utile dans notre cas car il attend que chaque observable émette au moins une fois une valeur puis prend la dernière valeur de chaque argument. Notre ```list$``` ne change pas mais à moins émis une valeur, quant à ```search$```, il change de valeur à chaque changement dans le champ texte. <br>
-
-Quand un changement est détecté, les valeurs des deux observables écoutés passent par l'opérateur ```map``` qui appelle la fonction ```filterByName(list: IList[], searchTerm: string)```, fonction qui si a ```searchTerm``` à vide retourne toute la liste, sinon effectue le tri et retourne les noms correspondants à la recherche.
 
 {% highlight typescript %}
 import { Component } from "@angular/core";
-import { debounceTime, distinctUntilChanged } from "rxjs/internal/operators";
+import { debounceTime, distinctUntilChanged, map } from "rxjs/operators";
 import { IList } from "./search.interface";
 import { SearchService } from "./search.service";
 import { BehaviorSubject, Observable, combineLatest } from "rxjs";
@@ -120,7 +109,7 @@ import { BehaviorSubject, Observable, combineLatest } from "rxjs";
 @Component({
   selector: "search",
   template: `
-    <search-filter (onSearch)="search($event)"></search-filter>
+    <search-input (onSearch)="search($event)"></search-input>
     <search-list *ngIf="(list$ | async) as list" [list]="list"></search-list>
   `
 })
@@ -131,18 +120,20 @@ export class SearchComponent {
 
   public list$: Observable<IList[]>;
 
-  constructor(private readonly searchService: SearchService) {}
+  constructor(private readonly searchService: SearchService) {
+    this.list$ = this.searchService.getNames();
+  }
 
   public ngOnInit(): void {
-    const list$: Observable<IList[]> = this.searchService.getNames();
-
     const search$: Observable<string> = this.searchFilter$.pipe(
       distinctUntilChanged(),
       debounceTime(300)
     );
 
-    this.list$ = combineLatest([list$, search$]).pipe(
-      map(([list, search]: [IList[], string]) => this.filterByName(list, search))
+    this.list$ = combineLatest([this.list$, search$]).pipe(
+      map(([list, search]: [IList[], string]) =>
+        this.filterByName(list, search)
+      )
     );
   }
 
@@ -160,6 +151,22 @@ export class SearchComponent {
 }
 {% endhighlight %}
 
+Notre <span class="info" title="Qui se charge de la logique, de l'injection des services et de l'état du composant mais pas de l'affichage">Smart component</span>.
+
+Regardons le hook ```ngOnInit```, nous avons une constante ```list$``` qui récupère les valeurs retournées par la base de données (pour l'exemple, c'est une méthode du service ```SearchService``` qui retourne les données écrites en dur). <br>
+
+Suit la constante ```search$``` qui récupère le flux du ```BehaviorSubject``` et effectue deux opérations :
+- ```distinctUntilChanged``` : Compare la valeur précédente et la valeur courrante. Il fonctionne comme une condition, si la nouvelle valeur est différente de la valeur précédente alors il passe au prochain opérateur.
+- ```debounceTime``` : Dans notre cas 300ms, on attend donc 300ms avant de passer au prochain opérateur. Si dans les 300ms la valeur change de nouveau, le compteur se remet à 0.
+
+Ces opérateurs sont assez communs quand il s'agit d'écouter les évennements sur un champ texte. <br>
+
+Avant de passer au ```combineLatest```, regardons la fonction ```search(value: string)```, elle est appellée chaque fois qu'un nouvel évennement est détecté, soit à chaque fois que le composant enfant ```SearchInputComponent``` notifie le parent d'un changement dans le champ texte. ```search(value: string)``` pousse dans le ```BehaviorSubject``` la nouvelle valeur, cette nouvelle valeur passe par les opérateurs que nous venons de décrire. <br>
+
+```combineLatest``` est très utile dans notre cas car il attend que chaque observable émette au moins une fois une valeur puis prend la dernière valeur de chaque observable. Notre ```list$``` ne change pas mais à déjà émis une valeur, la liste initiale. Quant à ```search$```, il change de valeur à chaque changement dans le champ texte. <br>
+
+Quand un changement est détecté, les valeurs des deux observables écoutés passent par l'opérateur ```map``` qui appelle la fonction ```filterByName(list: IList[], searchTerm: string)```, fonction qui si a ```searchTerm``` à vide retourne toute la liste, sinon effectue le tri et retourne les noms correspondants à la recherche.
+
 **Points intéressants**
 
 > 
@@ -175,7 +182,7 @@ export class SearchComponent {
 ## [Démo](#demo)
 ---
 
-<embed type="text/html" src="https://stackblitz.com/edit/angular-ivy-nx4tuf?ctl=1&embed=1&file=src/app/search/search.component.ts&theme=dark" width="100%" height="500">
+<embed type="text/html" src="https://stackblitz.com/edit/filtrer-une-liste-avec-rxjs?ctl=1&embed=1&file=src/app/app.component.ts&theme=dark" width="100%" height="600">
 
 <div class="embed-separator"></div>
 
